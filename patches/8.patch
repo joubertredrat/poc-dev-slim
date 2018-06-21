@@ -1,0 +1,22 @@
+From 2b6086fc8c6a84d6b1599cbe3b3ff9558e2912cc Mon Sep 17 00:00:00 2001
+From: Joubert RedRat <eu+github@redrat.com.br>
+Date: Thu, 12 Apr 2018 23:25:03 -0300
+Subject: [PATCH] Fix get commands from settings
+
+---
+ src/SlimCLIRunner.php | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/SlimCLIRunner.php b/src/SlimCLIRunner.php
+index a1903ec..99dbe8b 100644
+--- a/src/SlimCLIRunner.php
++++ b/src/SlimCLIRunner.php
+@@ -48,7 +48,7 @@ public function __invoke($request, $response, $next)
+ 
+         $command = $argv[1];
+         $args = array_slice($argv, 2);
+-        $possible_commands = $this->container->get('commands');
++        $possible_commands = $this->container->get('settings')['commands'];
+ 
+         try {
+             if (array_key_exists($command, $possible_commands)) {

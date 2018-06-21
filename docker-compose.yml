@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+    dev-test-slim-nginx:
+        build:
+            context: .
+            dockerfile: ./scripts/docker/nginx/Dockerfile
+        ports:
+            - 3000:80
+        depends_on:
+            - dev-test-slim-php-fpm
+    dev-test-slim-php-fpm:
+        build:
+            context: .
+            dockerfile: ./scripts/docker/php-fpm/Dockerfile

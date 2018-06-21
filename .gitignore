@@ -1,0 +1,5 @@
+/vendor/
+/.idea/
+/logs/*
+/db/*.sqlite
+!/logs/README.md

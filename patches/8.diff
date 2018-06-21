@@ -1,0 +1,13 @@
+diff --git a/src/SlimCLIRunner.php b/src/SlimCLIRunner.php
+index a1903ec..99dbe8b 100644
+--- a/src/SlimCLIRunner.php
++++ b/src/SlimCLIRunner.php
+@@ -48,7 +48,7 @@ public function __invoke($request, $response, $next)
+ 
+         $command = $argv[1];
+         $args = array_slice($argv, 2);
+-        $possible_commands = $this->container->get('commands');
++        $possible_commands = $this->container->get('settings')['commands'];
+ 
+         try {
+             if (array_key_exists($command, $possible_commands)) {

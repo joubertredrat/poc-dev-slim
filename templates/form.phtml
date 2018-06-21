@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Consulta CPF</title>
+</head>
+<body>
+    <h3>Consulta de CPF</h3>
+    <div>
+        <input type="tel" name="cpf" id="cpf" placeholder="Informe seu CPF" />
+        <input type="button" name="send" id="send" value="Consultar" />
+    </div>
+    <div id="cpf-blacklist" style="display: none;">
+        <p>CPF está BLOCK</p>
+        <input type="hidden" name="id" id="id" value="" />
+        <input type="button" name="remove" id="remove" value="Remover" />
+    </div>
+    <div id="cpf-free" style="display: none;">
+        <p>CPF está FREE</p>
+        <input type="button" name="add" id="add" value="Adicionar" />
+    </div>
+    <script>
+        function validateCpf(inputCPF){
+            var soma = 0;
+            var resto;
+
+            if(inputCPF == '00000000000') return false;
+            for(i=1; i<=9; i++) soma = soma + parseInt(inputCPF.substring(i-1, i)) * (11 - i);
+            resto = (soma * 10) % 11;
+
+            if((resto == 10) || (resto == 11)) resto = 0;
+            if(resto != parseInt(inputCPF.substring(9, 10))) return false;
+
+            soma = 0;
+            for(i = 1; i <= 10; i++) soma = soma + parseInt(inputCPF.substring(i-1, i))*(12-i);
+            resto = (soma * 10) % 11;
+
+            if((resto == 10) || (resto == 11)) resto = 0;
+            if(resto != parseInt(inputCPF.substring(10, 11))) return false;
+            return true;
+        }//validateCpf
+
+        function showBlacklisted() {
+            document
+                .getElementById('cpf-blacklist')
+                .style
+                .display = ''
+            ;
+        }//showBlacklisted
+
+        function hideBlacklisted() {
+            document
+                .getElementById('id')
+                .value = ""
+            ;
+
+            document
+                .getElementById('cpf-blacklist')
+                .style
+                .display = 'none'
+            ;
+        }//hideBlacklisted
+
+        function showFree() {
+            document
+                .getElementById('cpf-free')
+                .style
+                .display = ''
+            ;
+        }//showFree
+
+        function hideFree() {
+            document
+                .getElementById('cpf-free')
+                .style
+                .display = 'none'
+            ;
+        }//hideFree
+
+        function checkCpfBlacklist() {
+            hideBlacklisted();
+            hideFree();
+
+            var cpfNumber = document
+                .getElementById('cpf')
+                .value
+            ;
+
+            if (!validateCpf(cpfNumber)) {
+                alert('Informe um CPF válido');
+
+                return false;
+            }
+
+            var request = new XMLHttpRequest();
+
+            request.open(
+                'GET',
+                '/api/v1/cpf/blacklist/consulta?cpf=' + cpfNumber,
+                true
+            );
+
+            request.onload = function() {
+                switch (request.status) {
+                    case 200:
+                        const data = JSON.parse(request.response);
+
+                        document
+                            .getElementById('id')
+                            .value = data.id
+                        ;
+
+                        showBlacklisted();
+                        break;
+                    case 404:
+                        showFree();
+                        break;
+                    default:
+                        break;
+                }
+            };
+
+            request.onerror = function() {
+                alert('Ocorreu um erro durante a consulta, tente novamente');
+
+                return false;
+            };
+
+            request.send();
+        }//checkCpfBlacklist
+
+        function blacklistAdd() {
+            var cpfNumber = document
+                .getElementById('cpf')
+                .value
+            ;
+
+            if (!validateCpf(cpfNumber)) {
+                alert('Informe um CPF válido');
+
+                return false;
+            }
+
+            var request = new XMLHttpRequest();
+
+            request.open(
+                'POST',
+                '/api/v1/cpf/blacklist',
+                true
+            );
+
+            request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+            request.onload = function() {
+                switch (request.status) {
+                    case 201:
+                        alert('CPF ' + cpfNumber + ' adicionado a blacklist com sucesso');
+                        hideFree();
+                        break;
+                    default:
+                        alert('Ocorreu um erro durante a inclusão do CPF, tente novamente');
+                        break;
+                }
+            };
+
+            request.onerror = function() {
+                alert('Ocorreu um erro durante a inclusão do CPF, tente novamente');
+
+                return false;
+            };
+
+            request.send('{"number": "' + cpfNumber + '"}');
+
+            hideFree();
+        }//blacklistAdd
+
+        function blacklistRemove() {
+            var cpfNumber = document
+                .getElementById('cpf')
+                .value
+            ;
+
+            var id = document
+                .getElementById('id')
+                .value
+            ;
+
+            var request = new XMLHttpRequest();
+
+            request.open(
+                'DELETE',
+                '/api/v1/cpf/blacklist/' + id,
+                true
+            );
+
+            request.onload = function() {
+                switch (request.status) {
+                    case 204:
+                        alert('CPF ' + cpfNumber + ' removido da blacklist com sucesso');
+                        hideBlacklisted();
+                        break;
+                    default:
+                        alert('Ocorreu um erro durante a remoção do CPF, tente novamente');
+                        break;
+                }
+            };
+
+            request.onerror = function() {
+                alert('Ocorreu um erro durante a remoção do CPF, tente novamente');
+
+                return false;
+            };
+
+            request.send();
+
+            hideFree();
+        }//blacklistRemove
+
+        (function() {
+            document
+                .getElementById('send')
+                .addEventListener('click', checkCpfBlacklist, false)
+            ;
+
+            document
+                .getElementById('add')
+                .addEventListener('click', blacklistAdd, false)
+            ;
+
+            document
+                .getElementById('remove')
+                .addEventListener('click', blacklistRemove, false)
+            ;
+        })();
+    </script>
+</body>
+</html>
