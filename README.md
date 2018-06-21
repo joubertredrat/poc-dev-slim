@@ -1,6 +1,7 @@
 # Dev Test - Versão Slim Micro framework
 
 Esta versão do teste foi programada usando o [Slim Micro framework](https://www.slimframework.com).
+Versão do projeto feita com Symfony em [https://github.com/joubertredrat/poc-dev-sf](https://github.com/joubertredrat/poc-dev-sf).
 
 ## Execução
 
